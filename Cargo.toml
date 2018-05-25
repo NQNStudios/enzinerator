@@ -1,0 +1,7 @@
+[package]
+name = "enzinerator"
+version = "0.1.0"
+authors = ["Nat Quayle Nelson <natquaylenelson@gmail.com>"]
+
+[dependencies]
+magick-rust = { git = "https://github.com/nlfiedler/magick-rust/" }
