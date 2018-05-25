@@ -112,7 +112,7 @@ dependencies = [
 name = "enzinerator"
 version = "0.1.0"
 dependencies = [
- "magick_rust 0.9.0 (git+https://github.com/nlfiedler/magick-rust)",
+ "magick_rust 0.9.0 (git+https://github.com/NQNStudios/magick-rust?branch=new-bindings)",
 ]
 
 [[package]]
@@ -173,7 +173,7 @@ dependencies = [
 [[package]]
 name = "magick_rust"
 version = "0.9.0"
-source = "git+https://github.com/nlfiedler/magick-rust#f8e930e01e7e75dc4ae61ced053fffe8fc847781"
+source = "git+https://github.com/NQNStudios/magick-rust?branch=new-bindings#ccda94221fd8eebaae37ef3f3847230487a88e04"
 dependencies = [
  "bindgen 0.29.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.41 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -443,7 +443,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum libloading 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "fd38073de8f7965d0c17d30546d4bb6da311ab428d1c7a3fc71dff7f9d4979b9"
 "checksum log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e19e8d5c34a3e0e2223db8e060f9e8264aeeb5c5fc64a4ee9965c062211c024b"
 "checksum log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "89f010e843f2b1a31dbd316b3b8d443758bc634bed37aabade59c686d644e0a2"
-"checksum magick_rust 0.9.0 (git+https://github.com/nlfiedler/magick-rust)" = "<none>"
+"checksum magick_rust 0.9.0 (git+https://github.com/NQNStudios/magick-rust?branch=new-bindings)" = "<none>"
 "checksum memchr 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "148fab2e51b4f1cfc66da2a7c32981d1d3c083a803978268bb11fe4b86925e7a"
 "checksum memchr 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "796fba70e76612589ed2ce7f45282f5af869e0fdd7cc6199fa1aa1f1d591ba9d"
 "checksum nom 3.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05aec50c70fd288702bcd93284a8444607f3292dbdf2a30de5ea5dcdbe72287b"
