@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Nat Quayle Nelson <natquaylenelson@gmail.com>"]
 
 [dependencies]
-magick_rust = { git = "https://github.com/NQNStudios/magick-rust", branch = "new-bindings" }
+magick_rust = { git = "https://github.com/NQNStudios/magick-rust", branch = "enzinerator-dev" }
