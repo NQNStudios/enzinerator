@@ -82,3 +82,5 @@ eval $clean_command
 # TODO convert all pages into a PDF
 # TODO generate address labels for shipping to an audience defined in a text
 # file
+
+# TODO calculate printing and postage cost
