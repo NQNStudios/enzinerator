@@ -5,8 +5,10 @@
 
 dpi=300
 page_width=$((dpi*11))
-page_height=$(echo "$dpi * 8.5" | bc)
-extension=".jpg"
+page_height=$(echo "$dpi * 8.5 / 1" | bc)
+
+input_directory=${1:-"test-pages"}
+extension=${2:-".jpg"}
 
 # Useful functions
 abs () {
@@ -15,17 +17,19 @@ abs () {
     echo $root
 }
 
-# TODO allow for folio zine tiling which would produce something like this:
-# (((1 8)) ((2 7)) ((3 6)) ((4 5)))
-
 # Page tiling for an 8-page single-sheet zine is like so,
 # with negative numbers representing a 180degree rotation
 # (i.e. `convert -flip -flop`)
-# TODO bash doesn't allow multi-dimensional arrays :(
 pages=1
 tile_rows=2
 tile_columns=4
 page_tiles=(-1 -8 -7 -6 2 3 4 5)
+
+# TODO allow for folio zine tiling which would dynamically produce something like this:
+# (((1 8)) ((2 7)) ((3 6)) ((4 5)))
+
+tile_width=$(echo "$page_width / $tile_columns" | bc)
+tile_height=$(echo "$page_height / $tile_rows" | bc)
 
 # Tile each page together
 for page_num in `seq 1 $pages`; do
@@ -35,10 +39,22 @@ for page_num in `seq 1 $pages`; do
         append_columns_command="convert"
         for column_num in `seq 1 $tile_columns`; do
             tile_index=$(((row_num-1) * tile_columns + column_num-1))
-            # TODO resize the image so it will fit
-            # TODO apply a print-safe area to the image
-            # TODO flip flop the image if its index is negative
-            append_columns_command="$append_columns_command test-pages/page$(abs ${page_tiles[$tile_index]})$extension"
+
+            source_image_path="$input_directory/page$(abs ${page_tiles[$tile_index]})$extension"
+            temp_image_path="page$(abs ${page_tiles[$tile_index]})$extension"
+            # Resize the image so it will fit
+            convert $source_image_path -resize "${tile_width}x${tile_height}" $temp_image_path
+
+
+            # TODO apply a print-safe area to the image (kinda tricky)
+
+            # If the tile index is negative this tile needs to be flipped
+            if [ ${page_tiles[$tile_index]} -lt 0 ]; then
+                convert $temp_image_path -flip -flop $temp_image_path
+            fi
+
+
+            append_columns_command="$append_columns_command $temp_image_path"
 
         done
         append_columns_command="$append_columns_command +append row$row_num$extension"
