@@ -6,10 +6,13 @@
 dpi=300
 page_width=$((dpi*11))
 page_height=$(echo "$dpi * 8.5" | bc)
+extension=".jpg"
 
 # Useful functions
 abs () {
-    return $(sqrt (($1 * $1)))
+    square=$(echo "$1 * $1" | bc)
+    root=$(echo "sqrt ( $square )" | bc)
+    echo $root
 }
 
 # TODO allow for folio zine tiling which would produce something like this:
@@ -19,13 +22,34 @@ abs () {
 # with negative numbers representing a 180degree rotation
 # (i.e. `convert -flip -flop`)
 # TODO bash doesn't allow multi-dimensional arrays :(
-page_tiles=(((-1 -8 -7 -6) (2 3 4 5)))
+pages=1
+tile_rows=2
+tile_columns=4
+page_tiles=(-1 -8 -7 -6 2 3 4 5)
 
 # Tile each page together
-for page in $page_tiles; do
-    for row in $page; do
-        for tile in $row; do
-            echo $tile
+for page_num in `seq 1 $pages`; do
+    append_rows_command="convert"
+
+    for row_num in `seq 1 $tile_rows`; do
+        append_columns_command="convert"
+        for column_num in `seq 1 $tile_columns`; do
+            tile_index=$(((row_num-1) * tile_columns + column_num-1))
+            # TODO resize the image so it will fit
+            # TODO apply a print-safe area to the image
+            # TODO flip flop the image if its index is negative
+            append_columns_command="$append_columns_command test-pages/page$(abs ${page_tiles[$tile_index]})$extension"
+
         done
+        append_columns_command="$append_columns_command +append row$row_num$extension"
+        echo $append_columns_command
+        eval $append_columns_command
+
+        append_rows_command="$append_rows_command row$row_num$extension"
     done
+    append_rows_command="$append_rows_command -append page$page_num$extension"
+    echo $append_rows_command
+    eval $append_rows_command
 done
+
+# TODO delete intermediate files
