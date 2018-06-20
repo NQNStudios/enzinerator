@@ -31,6 +31,9 @@ page_tiles=(-1 -8 -7 -6 2 3 4 5)
 tile_width=$(echo "$page_width / $tile_columns" | bc)
 tile_height=$(echo "$page_height / $tile_rows" | bc)
 
+
+clean_command="rm"
+
 # Tile each page together
 for page_num in `seq 1 $pages`; do
     append_rows_command="convert"
@@ -41,7 +44,8 @@ for page_num in `seq 1 $pages`; do
             tile_index=$(((row_num-1) * tile_columns + column_num-1))
 
             source_image_path="$input_directory/page$(abs ${page_tiles[$tile_index]})$extension"
-            temp_image_path="page$(abs ${page_tiles[$tile_index]})$extension"
+            temp_image_path="tile$(abs ${page_tiles[$tile_index]})$extension"
+            clean_command="$clean_command $temp_image_path"
             # Resize the image so it will fit
             convert $source_image_path -resize "${tile_width}x${tile_height}" $temp_image_path
 
@@ -58,6 +62,7 @@ for page_num in `seq 1 $pages`; do
 
         done
         append_columns_command="$append_columns_command +append row$row_num$extension"
+        clean_command="$clean_command row$row_num$extension"
         echo $append_columns_command
         eval $append_columns_command
 
@@ -68,4 +73,9 @@ for page_num in `seq 1 $pages`; do
     eval $append_rows_command
 done
 
-# TODO delete intermediate files
+# Delete intermediate files
+echo $clean_command
+eval $clean_command
+# TODO convert all pages into a PDF
+# TODO generate address labels for shipping to an audience defined in a text
+# file
