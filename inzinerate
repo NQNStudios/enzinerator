@@ -1,0 +1,31 @@
+#! /bin/bash
+
+# TODO verify that the convert command is installed. If not,
+# print a message that ImageMagick v7 is required
+
+dpi=300
+page_width=$((dpi*11))
+page_height=$(echo "$dpi * 8.5" | bc)
+
+# Useful functions
+abs () {
+    return $(sqrt (($1 * $1)))
+}
+
+# TODO allow for folio zine tiling which would produce something like this:
+# (((1 8)) ((2 7)) ((3 6)) ((4 5)))
+
+# Page tiling for an 8-page single-sheet zine is like so,
+# with negative numbers representing a 180degree rotation
+# (i.e. `convert -flip -flop`)
+# TODO bash doesn't allow multi-dimensional arrays :(
+page_tiles=(((-1 -8 -7 -6) (2 3 4 5)))
+
+# Tile each page together
+for page in $page_tiles; do
+    for row in $page; do
+        for tile in $row; do
+            echo $tile
+        done
+    done
+done
