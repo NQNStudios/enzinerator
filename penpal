@@ -16,7 +16,7 @@ cat $address_file | while read line; do
         i=0
         # Trim the trailing newline
         label_text=${label_text::-1}
-        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" "label$name.jpg"
+        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" -stroke black -strokewidth 1 -fill none -draw "rectangle 0,0 799,299" -layers flatten "label$name.jpg"
         label_text=""
 
         # TODO Add the current image the proper number of times to the sheet
