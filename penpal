@@ -6,28 +6,27 @@ address_file=${1:-'addresses.txt'}
 i=0
 declare name
 declare comment
+label_text=""
 cat $address_file | while read line; do
     if [ $i -eq 0 ]; then
         name=$line
-
-        # create a 800x300 blank image
-        convert -size 800x300 xc:white "label$name.jpg"
-    fi
-
-    if [ "$line" = "#"* ]; then
-        # print warning if there's a comment
-        echo "Warning for $name: $line"
-    else
-        convert "label$name.jpg" -density 300 -pointsize 14 -font Courier "label:$line" "label$name.jpg"
-        echo "whhop"
     fi
 
     if [ "$line" = "-" ]; then
         i=0
-        # TODO Add the current image the proper number of times to the sheet
-    else
+        # Trim the trailing newline
+        label_text=${label_text::-1}
+        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" "label$name.jpg"
+        label_text=""
 
+        # TODO Add the current image the proper number of times to the sheet
+    elif [[ "$line" = "#"* ]]; then
+        # print warning if there's a comment
+        echo "Warning for $name: $line"
+    else
+        label_text="$label_text$line\n"
         i=$((i+1))
+        echo "whhop"
     fi
 done
 
