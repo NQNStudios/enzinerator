@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# Addresses should be provided as first argument
+address_file=${1:-'addresses.txt'}
+
+i=0
+declare name
+declare comment
+cat $address_file | while read line; do
+    if [ $i -eq 0 ]; then
+        name=$line
+
+        # create a 800x300 blank image
+        convert -size 800x300 xc:white "label$name.jpg"
+    fi
+
+    if [ "$line" = "#"* ]; then
+        # print warning if there's a comment
+        echo "Warning for $name: $line"
+    else
+        convert "label$name.jpg" -density 300 -pointsize 14 -font Courier "label:$line" "label$name.jpg"
+        echo "whhop"
+    fi
+
+    if [ "$line" = "-" ]; then
+        i=0
+        # TODO Add the current image the proper number of times to the sheet
+    else
+
+        i=$((i+1))
+    fi
+done
+
+# TODO add the first address label once for every other label
+
+# Get the lines for a given name
+#getlines() {
+    #$1
+#}
