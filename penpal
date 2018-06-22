@@ -3,10 +3,20 @@
 # Addresses should be provided as first argument
 address_file=${1:-'addresses.txt'}
 
+is_hq=true
 i=0
+
 declare name
 declare comment
 label_text=""
+
+
+row=1
+max_row=10
+column=1
+max_column=3
+page=1
+
 cat $address_file | while read line; do
     if [ $i -eq 0 ]; then
         name=$line
@@ -16,7 +26,35 @@ cat $address_file | while read line; do
         i=0
         # Trim the trailing newline
         label_text=${label_text::-1}
-        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" -stroke black -strokewidth 1 -fill none -draw "rectangle 0,0 799,299" -layers flatten "label$name.jpg"
+        label_file="label$name.jpg"
+
+        if [ $is_hq = true ]; then
+            label_file="labelHQ.jpg"
+            is_hq=false
+        fi
+
+        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" -stroke black -strokewidth 1 -fill none -draw "rectangle 0,0 799,299" -layers flatten "$label_file"
+
+        if [ $is_hq = false ]; then
+            echo "hm"
+            # TODO if this is a limited printing, prompt to ask if a label
+            # should be made for this person. If not, continue
+
+
+            # link hq address and this address vertically
+            convert "labelHQ.jpg" "$label_file" -append "senderAndRecipient.jpg"
+
+            # Append the sender/recipient label pair to the current column
+            # vertically. If the column is full, start a new one and append the
+            # column to the current page. If the current page is full, start
+            # a new page
+
+            # then append to
+            # a large label sheet (managing pages)
+
+            # then delete this label
+        fi
+
         label_text=""
 
         # TODO Add the current image the proper number of times to the sheet
@@ -30,9 +68,6 @@ cat $address_file | while read line; do
     fi
 done
 
-# TODO add the first address label once for every other label
-
-# Get the lines for a given name
-#getlines() {
-    #$1
-#}
+# TODO append all pages into a PDF
+# TODO delete all pages
+# TODO delete the hq label file
