@@ -3,6 +3,9 @@
 # Addresses should be provided as first argument
 address_file=${1:-'addresses.txt'}
 
+# TODO assert that the cwd doesn't have files that will accidentally get
+# overwritten
+
 is_hq=true
 i=0
 
@@ -12,62 +15,111 @@ label_text=""
 
 
 row=1
-max_row=10
+max_row=5 # because each row is actually a pair of sender/recipient labels
 column=1
 max_column=3
 page=1
 
-cat $address_file | while read line; do
-    if [ $i -eq 0 ]; then
-        name=$line
-    fi
+cat $address_file | 
+{
+    while read line; do
+        if [ $i -eq 0 ]; then
+            name=$line
+        fi
 
-    if [ "$line" = "-" ]; then
-        i=0
-        # Trim the trailing newline
-        label_text=${label_text::-1}
-        label_file="label$name.jpg"
+        if [ "$line" = "-" ]; then
+            i=0
+            # Trim the trailing newline
+            label_text=${label_text::-1}
+            label_file="label$name.jpg"
 
-        if [ $is_hq = true ]; then
-            label_file="labelHQ.jpg"
+            if [ $is_hq = true ]; then
+                label_file="labelHQ.jpg"
+            fi
+
+            convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" -stroke black -strokewidth 1 -fill none -draw "rectangle 0,0 799,299" -layers flatten "$label_file"
+
+            if [ $is_hq = false ]; then
+                # TODO if this is a limited printing, prompt to ask if a label
+                # should be made for this person. If not, continue
+
+
+                # link hq address and this address vertically
+                convert "labelHQ.jpg" "$label_file" -append "row$row.jpg"
+
+                row=$((row+1))
+
+                # If 10 sender/recipient pairs have been created, make them into
+                # a column file
+                if [ $row -gt $max_row ]; then
+                    convert row1.jpg row2.jpg row3.jpg row4.jpg row5.jpg -append "column$column.jpg"
+                    row=1
+                    column=$((column+1))
+                fi
+
+                # If 3 columns are finished, make them into a page and start a new
+                # one
+                if [ $column -gt $max_column ]; then
+                    convert column1.jpg column2.jpg column3.jpg +append "page$page.jpg"
+
+                    column=1
+                    page=$((page+1))
+                fi
+            fi
+
             is_hq=false
+            label_text=""
+
+            # TODO Add the current image the proper number of times to the sheet
+        elif [[ "$line" = "#"* ]]; then
+            # print warning if there's a comment
+            echo "Warning for $name: $line"
+        else
+            label_text="$label_text$line\n"
+            i=$((i+1))
         fi
+    done
 
-        convert -size 800x300 xc:white -density 300 -pointsize 12 -font Courier -gravity center "caption:$label_text" -stroke black -strokewidth 1 -fill none -draw "rectangle 0,0 799,299" -layers flatten "$label_file"
+    last_convert=''
 
-        if [ $is_hq = false ]; then
-            echo "hm"
-            # TODO if this is a limited printing, prompt to ask if a label
-            # should be made for this person. If not, continue
+    for i in `seq 1 $((page-1))`; do
+        last_convert="$last_convert page$i.jpg"
+    done
 
+    # There will likely be an incomplete page left over. Need to finish
+    # filling it, and eventually do something with that extra space so it's not
+    # wasted
 
-            # link hq address and this address vertically
-            convert "labelHQ.jpg" "$label_file" -append "senderAndRecipient.jpg"
+    delete_last_page=false
+    if [ $column != 1 ] || [ $row != 1 ]; then
+        while [ "$column" -lt "$((max_column+1))" ]; do
+            while [ "$row" -lt "$((max_row+1))" ]; do
+                convert -size 800x600 xc:white row$row.jpg
+                row=$((row+1))
+            done
 
-            # Append the sender/recipient label pair to the current column
-            # vertically. If the column is full, start a new one and append the
-            # column to the current page. If the current page is full, start
-            # a new page
+            convert row1.jpg row2.jpg row3.jpg row4.jpg row5.jpg -append "column$column.jpg"
+            column=$((column+1))
+        done
 
-            # then append to
-            # a large label sheet (managing pages)
+        convert column1.jpg column2.jpg column3.jpg +append lastpage.jpg
 
-            # then delete this label
-        fi
-
-        label_text=""
-
-        # TODO Add the current image the proper number of times to the sheet
-    elif [[ "$line" = "#"* ]]; then
-        # print warning if there's a comment
-        echo "Warning for $name: $line"
-    else
-        label_text="$label_text$line\n"
-        i=$((i+1))
-        echo "whhop"
+        last_convert="$last_convert lastpage.jpg"
+        delete_last_page=true
     fi
-done
 
-# TODO append all pages into a PDF
-# TODO delete all pages
-# TODO delete the hq label file
+    last_convert="$last_convert labels.pdf"
+    convert $last_convert
+    # delete all pages
+    rm page*.jpg
+    if [ $delete_last_page = true ]; then
+        rm lastpage.jpg
+    fi
+
+    # delete all row files
+    rm row*.jpg
+    # delete all label files
+    rm label*.jpg
+    # delete all columns
+    rm column*.jpg
+}
