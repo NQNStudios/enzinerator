@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# Walk the user through taking webcam photos of the 8 pages.
+# Dependency: sudo apt-get install fswebcam
+
+alertWebcam() {
+    echo "Hold page $1 in front of your webcam." 
+    for i in {3..1}; do
+        echo -n "$i..." && sleep 1
+    done
+    echo "Click."
+}
+
+for i in `seq 1 8`; do
+    alertWebcam $i
+    fswebcam --no-banner --jpeg 100 page$i.jpg
+done

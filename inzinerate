@@ -79,7 +79,7 @@ eval $clean_command
 
 # TODO convert {output} -colorspace Gray if specified
 
-# TODO convert all pages into a PDF
+# TODO convert all pages into a PDF with the name of the input directory
 # TODO generate address labels for shipping to an audience defined in a text
 # file
 
