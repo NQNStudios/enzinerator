@@ -123,3 +123,5 @@ cat $address_file |
     # delete all columns
     rm column*.jpg
 }
+
+# TODO tell you how many stamps you're gonna need
